@@ -19,10 +19,10 @@ app.get("/repositories", (request, response) => {
 
 // Criador de repositórios.
 app.post("/repositories", (request, response) => {
-  const { title, link, techs } = request.body;
+  const { title, url, techs } = request.body;
   const likes = 0
-
-  const repository = { id: uuid(), title, link, techs, likes }
+  const id = uuid()
+  const repository = { id, title, url, techs, likes }
 
   repositories.push(repository)
 
@@ -31,7 +31,7 @@ app.post("/repositories", (request, response) => {
 
 app.put("/repositories/:id", (request, response) => {
   const { id } = request.params;
-  const { title, link, techs } = request.body;
+  const { title, url, techs } = request.body;
 
   const repoIndex = repositories.findIndex((repository) => repository.id == id);
 
@@ -39,15 +39,18 @@ app.put("/repositories/:id", (request, response) => {
     return response.status(400).json({ error: "Project not found" });
   }
 
+
+
   const repository = {
     id,
     title,
-    link,
+    url,
     techs,
-    likes
+    likes: repositories[repoIndex].likes
   };
+
   repositories[repoIndex] = repository;
-  
+
   return response.json(repositories)
 
 });
@@ -55,11 +58,33 @@ app.put("/repositories/:id", (request, response) => {
 
 
 app.delete("/repositories/:id", (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const repoIndex = repositories.findIndex((repository) => repository.id == id)
+
+  if (repoIndex < 0) {
+    return response.status(400).json({ error: "Bad Request" });
+  }
+
+  repositories.splice(repoIndex, 1);
+
+  return response.status(204).json({ error: "No Content" });
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const repoIndex = repositories.findIndex((repository) => repository.id == id);
+
+  if (repoIndex < 0) {
+    response.status(400).send("Bad request")
+  }
+
+  repositories[repoIndex].likes++;
+
+
+  return response.json(repositories)
+
 });
 
 module.exports = app;
