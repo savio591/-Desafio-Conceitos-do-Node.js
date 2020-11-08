@@ -1,7 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 
-const { v4: uuid, validate: isUuid } = require('uuid');
+const { uuid, isUuid } = require("uuidv4");
+//const { v4: uuid, validate: isUuid } = require('uuid');
 
 const app = express();
 
@@ -20,13 +21,12 @@ app.get("/repositories", (request, response) => {
 // Criador de repositórios.
 app.post("/repositories", (request, response) => {
   const { title, url, techs } = request.body;
-  const likes = 0
-  const id = uuid()
-  const repository = { id, title, url, techs, likes }
+  const repository = { id: uuid(), title, url, techs, likes: 0 };
 
-  repositories.push(repository)
+  repositories.push(repository);
 
-  return response.json(repositories);
+
+  return response.json(repository);
 });
 
 app.put("/repositories/:id", (request, response) => {
@@ -51,7 +51,7 @@ app.put("/repositories/:id", (request, response) => {
 
   repositories[repoIndex] = repository;
 
-  return response.json(repositories)
+  return response.json(repository)
 
 });
 
@@ -76,14 +76,14 @@ app.post("/repositories/:id/like", (request, response) => {
 
   const repoIndex = repositories.findIndex((repository) => repository.id == id);
 
-  if (repoIndex < 0) {
+  if (repoIndex == -1) {
     response.status(400).send("Bad request")
   }
 
   repositories[repoIndex].likes++;
 
 
-  return response.json(repositories)
+  return response.json(repositories[repoIndex])
 
 });
 
